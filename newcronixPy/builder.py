@@ -11,27 +11,37 @@ class TaskBuilder:
         self.unit = None
         self.at_time = None
         self.weekday = None
+        self.repeat = None
 
+    @property
     def seconds(self):
         self.unit = "seconds"
         return self
 
+    @property
     def minutes(self):
         self.unit = "minutes"
         return self
 
+    @property
     def hours(self):
         self.unit = "hours"
         return self
 
+    @property
     def day(self):
         self.unit = "day"
         return self
 
+    @property
     def monday(self): return self._set_weekday(0)
+    @property
     def tuesday(self): return self._set_weekday(1)
+    @property
     def wednesday(self): return self._set_weekday(2)
+    @property
     def thursday(self): return self._set_weekday(3)
+    @property
     def friday(self): return self._set_weekday(4)
 
     def _set_weekday(self, day):
@@ -43,29 +53,39 @@ class TaskBuilder:
         parse_time(time_str)
         self.at_time = time_str
         return self
-
+    
+    def times(self, n: int):
+        self.repeat = n
+        return self
+    
+    @property
+    def once(self):
+        self.repeat = 1
+        return self
+    
     def do(self, func, *args):
         task = None
 
         if self.mode == "in":
-            task = OneTimeTask(time.monotonic() + self.value, func, args)
+            task = OneTimeTask(time.monotonic() + self.value, func, args, repeat=1)
 
         elif self.mode == "every" and self.unit in ["seconds", "minutes", "hours"]:
             mult = {"seconds": 1, "minutes": 60, "hours": 3600}[self.unit]
-            task = IntervalTask(self.value * mult, func, args)
+            task = IntervalTask(self.value * mult, func, args, repeat=self.repeat)
 
         elif self.mode == "every" and self.unit == "day":
             h, m = map(int, self.at_time.split(":"))
-            task = DailyTask(h, m, func, args)
+            task = DailyTask(h, m, func, args, repeat=self.repeat)
 
         elif self.mode == "every" and self.unit == "weekday":
             h, m = map(int, self.at_time.split(":"))
-            task = WeeklyTask(self.weekday, h, m, func, args)
+            task = WeeklyTask(self.weekday, h, m, func, args, repeat=self.repeat)
 
         if task:
             add_task(task)
 
         return task
+    
 
 
 def every(value=None):
@@ -74,3 +94,4 @@ def every(value=None):
 
 def in_(seconds):
     return TaskBuilder("in", seconds)
+

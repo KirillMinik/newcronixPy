@@ -2,4 +2,7 @@
 
 Simple Python task scheduler.
 
-## Look for examples folder for examples
+## pip install newcronixPy
+
+## look for our github page https://github.com/KirillMinik/newcronixPy for code examples
+Or, if you already in GitHub, look for examples package for examples!!!

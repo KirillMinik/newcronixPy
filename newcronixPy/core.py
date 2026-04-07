@@ -41,11 +41,18 @@ def _loop():
                     run_task(task.func, task.args)
                     task.last_run = now
 
+                    task.run_count += 1
+
+                    if task.repeat is not None and task.run_count >= task.repeat:
+                        task.cancelled = True
+                        to_remove.append(task)
+                        continue
+
                     if task.one_time:
                         to_remove.append(task)
 
             for t in to_remove:
                 if t in _tasks:
-                    _tasks.remove(t)
+                     _tasks.remove(t)
 
         time.sleep(0.5)

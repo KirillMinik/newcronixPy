@@ -3,12 +3,14 @@ from datetime import datetime
 
 
 class BaseTask:
-    def __init__(self, func, args):
+    def __init__(self, func, args, repeat=None):
         self.func = func
         self.args = args
         self.last_run = None
         self.cancelled = False
         self.one_time = False
+        self.repeat = repeat
+        self.run_count = 0
 
     def should_run(self, now: datetime):
         raise NotImplementedError
@@ -18,8 +20,8 @@ class BaseTask:
 
 
 class IntervalTask(BaseTask):
-    def __init__(self, interval, func, args):
-        super().__init__(func, args)
+    def __init__(self, interval, func, args, repeat=None):
+        super().__init__(func, args, repeat)  
         self.interval = interval
         self.next_run = time.monotonic() + interval
 
@@ -31,8 +33,8 @@ class IntervalTask(BaseTask):
 
 
 class DailyTask(BaseTask):
-    def __init__(self, hour, minute, func, args):
-        super().__init__(func, args)
+    def __init__(self, hour, minute, func, args, repeat=None):
+        super().__init__(func, args, repeat)
         self.hour = hour
         self.minute = minute
 
@@ -45,8 +47,8 @@ class DailyTask(BaseTask):
 
 
 class WeeklyTask(BaseTask):
-    def __init__(self, weekday, hour, minute, func, args):
-        super().__init__(func, args)
+    def __init__(self, weekday, hour, minute, func, args, repeat=None):
+        super().__init__(func, args, repeat)
         self.weekday = weekday
         self.hour = hour
         self.minute = minute
@@ -61,8 +63,8 @@ class WeeklyTask(BaseTask):
 
 
 class OneTimeTask(BaseTask):
-    def __init__(self, run_at, func, args):
-        super().__init__(func, args)
+    def __init__(self, run_at, func, args, repeat=None):
+        super().__init__(func, args, repeat)  
         self.run_at = run_at
         self.one_time = True
 
